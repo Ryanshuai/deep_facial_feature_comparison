@@ -27,7 +27,7 @@ def train(model: Classifier, dataset, viz, save_name):
             kld_loss = torch.mean(-0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp(), dim=1), dim=0)
             mse_loss = bce(y, x)
 
-            kld_weight = 1e-7
+            kld_weight = 1e-5
             loss = mse_loss + kld_weight * kld_loss
             loss.backward()
             optimizer.step()

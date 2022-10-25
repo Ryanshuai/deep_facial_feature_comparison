@@ -40,8 +40,8 @@ class Encoder(nn.Module):
         self.conv3 = ConvBNRelu(64, 128)
         self.conv4 = ConvBNRelu(128, 256)
         self.conv5 = ConvBNRelu(256, 512)
-        self.fc_mu = nn.Linear(512 * 6 * 5, 128)
-        self.fc_log_var = nn.Linear(512 * 6 * 5, 128)
+        self.fc_mu = nn.Linear(512 * 6 * 5, 256)
+        self.fc_log_var = nn.Linear(512 * 6 * 5, 256)
 
     def forward(self, x):
         x = self.conv1(x)
@@ -64,12 +64,12 @@ def reparameterize(mu, log_var):
 class Decoder(nn.Module):
     def __init__(self):
         super().__init__()
-        self.fc = nn.Linear(128, 512 * 6 * 5)
+        self.fc = nn.Linear(256, 512 * 6 * 5)
         self.deconv1 = UpConvBNRelu(512, 256)
         self.deconv2 = UpConvBNRelu(256, 128)
         self.deconv3 = UpConvBNRelu(128, 64)
         self.deconv4 = UpConvBNRelu(64, 32)
-        self.up = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
+        self.deconv5 = UpConvBNRelu(32, 32)
         self.conv = nn.Conv2d(32, 3, 3, 1, 1)
 
     def forward(self, x):
@@ -79,7 +79,7 @@ class Decoder(nn.Module):
         x = self.deconv2(x)
         x = self.deconv3(x)
         x = self.deconv4(x)
-        x = self.up(x)
+        x = self.deconv5(x)
         x = self.conv(x)
         return x
 

@@ -16,20 +16,18 @@ class CelebA(Dataset):
     def __getitem__(self, idx):
         path = self.paths[idx]
         im = cv2.imread(path)
+        im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
         im = cv2.resize(im, (160, 192))
         im = im.astype('float32') / 255
         im = im.transpose(2, 0, 1)
         torch_im = torch.from_numpy(im).float()
         name = os.path.basename(path)[:-4]
         label = int(name.endswith('m'))
-        return torch_im, label
+        return torch_im, label, os.path.basename(path)
 
 
 if __name__ == '__main__':
-    image_dir = "E:\celebA\img_align_celeba_png"
+    image_dir = "D:\celebA\img_align_celeba_png"
     dataset = CelebA(image_dir)
-    for im, label in dataset:
-        print(label)
-        np_im = im.numpy().transpose(1, 2, 0)
-        cv2.imshow('im', np_im)
-        cv2.waitKey(0)
+    for im, label, name in dataset:
+        print(name)

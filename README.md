@@ -9,3 +9,10 @@ train_classifier.py trains classifier
 use visdom for visualization:  
 type `python -m visdom.server` in terminal
 and then run train_vae.py or train_classifier.py
+
+
+To generate your requrements file do:  
+pip freeze > requirements.py
+
+To install the requrements do:   
+pip install -r requirements.py

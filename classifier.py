@@ -19,7 +19,6 @@ class Classifier(nn.Module):
         y = self.fc1(z)
         y = self.relu1(y)
         y = self.fc2(y)
-        y = self.relu2(y)
         return y, mu, log_var
 
 

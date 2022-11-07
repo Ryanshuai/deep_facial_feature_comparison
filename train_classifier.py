@@ -9,9 +9,9 @@ from dataloader import CelebA
 from classifier import Classifier
 
 
-def train(model: Classifier, dataset, viz, save_name):
+def train(model: Classifier, dataset, viz: Visualizer, save_name):
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=64, shuffle=True)
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-6)
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-4, weight_decay=1e-6)
     bce = nn.BCEWithLogitsLoss()
 
     model.train()
@@ -19,15 +19,16 @@ def train(model: Classifier, dataset, viz, save_name):
         losses = []
         kld_losses = []
         mse_losses = []
-        for i, (x, _) in tqdm(enumerate(dataloader)):
+        for i, (x, label, _) in tqdm(enumerate(dataloader)):
+            label = label.cuda().unsqueeze(1).float()
             x = x.cuda()
             model.zero_grad()
             y, mu, log_var = model(x)
 
             kld_loss = torch.mean(-0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp(), dim=1), dim=0)
-            mse_loss = bce(y, x)
+            mse_loss = bce(y, label)
 
-            kld_weight = 1e-5
+            kld_weight = 5e-6
             loss = mse_loss + kld_weight * kld_loss
             loss.backward()
             optimizer.step()
@@ -48,7 +49,8 @@ def train(model: Classifier, dataset, viz, save_name):
                 mse_losses = []
 
             if viz.every_n_step(100):
-                viz.cat_batch_images("im, reconstruction", (x, y), nrow=1)
+                for i in range(8):
+                    viz.imShow(f"l:{label[i].item()}, y:{round(y[i].item(), 2)}", x[i])
 
             viz.tic()
         torch.save(model.state_dict(),
@@ -58,16 +60,15 @@ def train(model: Classifier, dataset, viz, save_name):
 if __name__ == '__main__':
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    vae = Classifier().to(DEVICE)
-    # load_pickle = "_epoch_2_0.0184598.pickle"
-    # if os.path.exists("pickles/" + load_pickle):
-    #     with open("pickles/" + load_pickle, "rb") as f:
-    #         state_dict = torch.load(f, map_location=DEVICE)
-    #     vae.load_state_dict(state_dict)
+    classifier = Classifier().to(DEVICE)
+    load_pickle = "classifier_1_epoch_0_0.0731832.pickle"
+    if os.path.exists("pickles/" + load_pickle):
+        with open("pickles/" + load_pickle, "rb") as f:
+            state_dict = torch.load(f, map_location=DEVICE)
+        classifier.load_state_dict(state_dict)
 
-    save_name = "classifier"
+    save_name = "classifier_2"
     viz = Visualizer(save_name, x_axis="step")
-    # viz = 0
     dataset = CelebA("D:\celebA\img_align_celeba_png")
 
-    train(vae, dataset, viz=viz, save_name=save_name)
+    train(classifier, dataset, viz=viz, save_name=save_name)

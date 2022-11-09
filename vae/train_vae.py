@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 from train_vlisulization_visdom import Visualizer
 from dataloader import CelebA
-from vae import VAE
+from vae_net import VAE
 
 
 def train(model: VAE, dataset, viz, save_name):

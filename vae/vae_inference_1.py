@@ -3,7 +3,7 @@ import os
 from tqdm import tqdm
 
 from dataloader import CelebA
-from vae import VAE
+from vae_net import VAE
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

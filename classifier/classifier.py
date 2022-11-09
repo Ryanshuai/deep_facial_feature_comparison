@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from vae import Encoder, reparameterize
+from vae.vae_net import Encoder, reparameterize
 
 
 class Classifier(nn.Module):

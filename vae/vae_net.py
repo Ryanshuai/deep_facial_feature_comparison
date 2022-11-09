@@ -90,10 +90,13 @@ class VAE(nn.Module):
         self.encoder = Encoder()
         self.decoder = Decoder()
 
-    def forward(self, x):
+    def forward(self, x, use_reparameterize=True):
         mu, log_var = self.encoder(x)
-        z = reparameterize(mu, log_var)
-        y = self.decoder(z)
+        if use_reparameterize:
+            z = reparameterize(mu, log_var)
+            y = self.decoder(z)
+        else:
+            y = self.decoder(mu)
         return y, mu, log_var
 
 

@@ -13,11 +13,17 @@ print(time.localtime(time.time()))
 
 kmeans = KMeans(n_clusters=2, max_iter=300).fit(features)
 
-with open("classifier_kmeans_result.txt", "w") as f:
-    for label in kmeans.labels_:
-        f.write(f"{label} ")
+# with open("classifier_kmeans_result.txt", "w") as f:
+#     for label in kmeans.labels_:
+#         f.write(f"{label} ")
 
 print(kmeans.labels_)
 print(kmeans.cluster_centers_)
 
 print(time.localtime(time.time()))
+
+
+with open("classifier_kmeans_center_distance.txt", "w") as f:
+    for idx, label in enumerate(kmeans.labels_):
+        distance = np.linalg.norm(features[idx] - kmeans.cluster_centers_[label])
+        f.write(f"{label} {distance}\n")

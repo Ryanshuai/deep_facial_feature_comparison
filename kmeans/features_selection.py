@@ -62,7 +62,7 @@ def pearsonCorrelationSelection(trainX, trainY):
         sampleX = trainX[:, i]
         meanX = sampleX.mean()
         numerator = np.dot((sampleX - meanX), (trainY - meanY))
-        denominator = np.sum(np.square(sampleX - meanX), axis=0)*np.sum(np.square(trainY - meanY), axis=0)
+        denominator = np.sqrt(np.sum(np.square(sampleX - meanX), axis=0))*np.sqrt(np.sum(np.square(trainY - meanY), axis=0))
         r = numerator/denominator
         rs.append(r)
     sortedRs = np.argsort(np.array(rs))
@@ -164,9 +164,8 @@ def selection(trainX, trainY, dirction):
                 tempFeatureList = bestUpperLvlFeatureList[:]
                 tempFeatureList.append(i)
                 errRate = errorRate(trainY, nnAlg(trainX, trainY, tempFeatureList))
-                print("    Using feature(s) " + str(
-                    np.sort(tempFeatureList, kind='quicksort', order=None)) + " accuracy is " + str(
-                    (1 - errRate) * 100) + "%")
+                # print("    Using feature(s) " + str(
+                #     np.sort(tempFeatureList, kind='quicksort', order=None)) + " accuracy is " + str((1 - errRate) * 100) + "%")
                 if (errRate < lvlErrRate):
                     lvlErrRate = errRate
                     bestLvlFeatureList = tempFeatureList
@@ -174,6 +173,10 @@ def selection(trainX, trainY, dirction):
                 np.sort(bestLvlFeatureList, kind='quicksort', order=None)) + " accuracy is " + str((1 - lvlErrRate) * 100) + "%")
             bestUpperLvlFeatureList = bestLvlFeatureList
             bestFeatureList.insert(0, [lvlErrRate, np.sort(bestLvlFeatureList, kind='quicksort', order=None)])
+
+            # if(errRate == 0):
+            #     if(len(bestLvlFeatureList) >= 2):
+            #         break
     else:
         for i in range(0, n):
             bestLowerLvlFeatureList.append(i)
@@ -186,7 +189,7 @@ def selection(trainX, trainY, dirction):
                 tempFeatureList = bestLowerLvlFeatureList[:]
                 del tempFeatureList[i]
                 errRate = errorRate(trainY, nnAlg(trainX, trainY, tempFeatureList))
-                print("    Using feature(s) " + str(tempFeatureList) + " accuracy is " + str((1 - errRate) * 100) + "%")
+                # print("    Using feature(s) " + str(tempFeatureList) + " accuracy is " + str((1 - errRate) * 100) + "%")
                 if (errRate < lvlErrRate):
                     lvlErrRate = errRate
                     bestLvlFeatureList = tempFeatureList
@@ -194,6 +197,10 @@ def selection(trainX, trainY, dirction):
                 (1 - lvlErrRate) * 100) + "%")
             bestLowerLvlFeatureList = bestLvlFeatureList
             bestFeatureList.insert(0, [lvlErrRate, bestLvlFeatureList])
+            
+            # if(errRate == 0):
+            #     if(len(bestLvlFeatureList) <= 238):
+            #         break
     errRate = 1
     idx = -1
     for i in range(0, len(bestFeatureList)):
@@ -203,7 +210,8 @@ def selection(trainX, trainY, dirction):
             idx = i
     print("Finish searchinng. The best featrue set is " + str(bestFeatureList[idx][1]) + " accuracy is " + str(
         (1 - bestFeatureList[idx][0]) * 100) + "%")
-    return np.array(bestFeatureList, dtype=object)
+    return bestFeatureList[idx][1]
+    # return np.array(bestFeatureList[idx][1], dtype=object)
 
 # def selection(trainX, trainY, direction):
 #     bestLvlFeatureList = []
